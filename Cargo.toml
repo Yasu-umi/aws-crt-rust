@@ -1,0 +1,13 @@
+[package]
+name = "aws-crt-rust"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [
+    "crates/aws-c-common-sys",
+    "crates/build_util",
+]
+
+[dependencies]
+aws-c-common-sys = { path = "crates/aws-c-common-sys" }

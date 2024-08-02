@@ -1,0 +1,15 @@
+[submodule "aws-c-common"]
+	path = crt/aws-c-common
+	url = https://github.com/awslabs/aws-c-common.git
+[submodule "aws-c-cal"]
+	path = crt/aws-c-cal
+	url = https://github.com/awslabs/aws-c-cal.git
+[submodule "aws-c-io"]
+	path = crt/aws-c-io
+	url = https://github.com/awslabs/aws-c-io.git
+[submodule "aws-lc"]
+	path = crt/aws-lc
+	url = https://github.com/awslabs/aws-lc.git
+[submodule "aws-c-mqtt"]
+	path = crt/aws-c-mqtt
+	url = https://github.com/awslabs/aws-c-mqtt.git
