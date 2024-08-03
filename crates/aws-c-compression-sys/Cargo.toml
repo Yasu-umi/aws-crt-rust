@@ -1,0 +1,10 @@
+[package]
+name = "aws-c-compression-sys"
+version = "0.1.0"
+edition = "2021"
+build = "src/build.rs"
+
+[dependencies]
+
+[build-dependencies]
+build_util = { path = "../build_util" }

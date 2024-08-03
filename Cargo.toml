@@ -8,6 +8,8 @@ members = [
     "crates/aws-c-common-sys",
     "crates/aws-c-cal-sys",
     "crates/aws-lc-sys",
+    "crates/aws-c-io-sys",
+    "crates/aws-c-compression-sys",
     "crates/build_util",
 ]
 
@@ -15,3 +17,5 @@ members = [
 aws-c-common-sys = { path = "crates/aws-c-common-sys" }
 aws-c-cal-sys = { path = "crates/aws-c-cal-sys" }
 aws-lc-sys = { path = "crates/aws-lc-sys" }
+aws-c-io-sys = { path = "crates/aws-c-io-sys" }
+aws-c-compression-sys = { path = "crates/aws-c-compression-sys" }

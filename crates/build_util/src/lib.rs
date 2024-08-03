@@ -5,6 +5,23 @@ use std::path::PathBuf;
 use std::process::{exit, Command};
 use std::{env, process};
 
+pub fn build(pkg_name: &str, pkg_names: &[&str]) {
+    for pkg_name in pkg_names {
+        exc_build_native(pkg_name);
+    }
+
+    exc_bindgen();
+
+    println!("cargo:rustc-link-lib={}", pkg_name);
+    println!(
+        "cargo:rustc-link-search={}",
+        get_make_out_dir().to_str().unwrap(),
+    );
+    for pkg_name in pkg_names {
+        println!("cargo::rerun-if-changed=../../crt/{}", pkg_name);
+    }
+}
+
 pub fn exc_build_native(pkg_name: &str) {
     exc_cmake(pkg_name);
     exc_make(pkg_name);
