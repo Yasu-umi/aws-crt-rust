@@ -31,6 +31,14 @@ version = "0.1.0"
 dependencies = [
  "aws-c-cal-sys",
  "aws-c-common-sys",
+ "aws-lc-sys",
+]
+
+[[package]]
+name = "aws-lc-sys"
+version = "0.1.0"
+dependencies = [
+ "build_util",
 ]
 
 [[package]]

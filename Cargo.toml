@@ -7,9 +7,11 @@ edition = "2021"
 members = [
     "crates/aws-c-common-sys",
     "crates/aws-c-cal-sys",
+    "crates/aws-lc-sys",
     "crates/build_util",
 ]
 
 [dependencies]
 aws-c-common-sys = { path = "crates/aws-c-common-sys" }
 aws-c-cal-sys = { path = "crates/aws-c-cal-sys" }
+aws-lc-sys = { path = "crates/aws-lc-sys" }
