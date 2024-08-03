@@ -1,8 +1,8 @@
 use build_util::{exc_bindgen, exc_build_native, get_make_out_dir};
 
 fn main() {
-    let pkg_names = ["aws-c-common"];
-    let pkg_name = "aws-c-common";
+    let pkg_names = ["aws-c-common", "aws-c-cal"];
+    let pkg_name = "aws-c-cal";
 
     for pkg_name in pkg_names {
         exc_build_native(pkg_name);

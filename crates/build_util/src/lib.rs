@@ -5,70 +5,70 @@ use std::path::PathBuf;
 use std::process::{exit, Command};
 use std::{env, process};
 
-pub fn exc_build_native(pkg_name: &str, pkg_names: &[&str]) -> PathBuf {
-    exc_cmake(pkg_name, pkg_names);
-    exc_make(pkg_name, pkg_names);
+pub fn exc_build_native(pkg_name: &str) {
+    exc_cmake(pkg_name);
+    exc_make(pkg_name);
     exc_make_install(pkg_name);
-    get_make_out_dir(pkg_name)
 }
 
-pub fn exc_cmake(pkg_name: &str, pkg_names: &[&str]) {
+pub fn exc_cmake(pkg_name: &str) {
+    let make_out_dir = get_make_out_dir();
     let cmake_out_dir = get_cmake_out_dir(pkg_name);
+
     let mut command = Command::new("cmake");
-    let mut _command = command.args([
+    let command = command.current_dir(&cmake_out_dir).args([
+        format!(
+            "-DCMAKE_MODULE_PATH={}",
+            get_cmake_module_path().to_str().unwrap()
+        )
+        .as_str(),
+        format!("-DCMAKE_INSTALL_PREFIX={}", make_out_dir.to_str().unwrap()).as_str(),
+        format!(
+            "-DCMAKE_PREFIX_PATH={}",
+            make_out_dir.join("include").to_str().unwrap()
+        )
+        .as_str(),
+        // format!(
+        //     "-DCMAKE_C_FLAGS={}",
+        //     make_out_dir.join("include").to_str().unwrap()
+        // )
+        // .as_str(),
         "-S",
         get_pkg_dir(pkg_name).to_str().unwrap(),
         "-B",
         &cmake_out_dir.to_str().unwrap(),
     ]);
-    for pkg_name in pkg_names {
-        let make_out_dir = get_make_out_dir(pkg_name);
-        let cmake_out_dir = get_cmake_out_dir(pkg_name);
-        _command = _command.args([
-            format!(
-                "-DCMAKE_MODULE_PATH={}/build/lib/cmake",
-                cmake_out_dir.to_str().unwrap()
-            )
-            .as_str(),
-            format!("-DCMAKE_INSTALL_PREFIX={}", make_out_dir.to_str().unwrap()).as_str(),
-            format!(
-                "-DCMAKE_PREFIX_PATH={}/include",
-                make_out_dir.to_str().unwrap()
-            )
-            .as_str(),
-        ]);
-    }
-    let output = _command.output().unwrap();
+
+    let output = command.output().unwrap();
     show_output(&output);
 }
 
-pub fn exc_make(pkg_name: &str, pkg_names: &[&str]) {
+pub fn exc_make(pkg_name: &str) {
+    // let make_out_dir = get_make_out_dir();
     let cmake_out_dir = get_cmake_out_dir(pkg_name);
+
     let mut command = Command::new("make");
-    let command = command
-        .current_dir(&cmake_out_dir)
-        .args([
-            "-j",
-            &num_cpus::get().to_string(),
-            "V=1",
-        ]);
-    for pkg_name in pkg_names {
-        let make_out_dir = get_make_out_dir(pkg_name);
-        command.arg(format!("-I{}/include", make_out_dir.to_str().unwrap()).as_str());
-    }
-    println!("--------------------------------");
-    println!("{:?}", command.get_args());
-    println!("--------------------------------");
+    let command = command.current_dir(&cmake_out_dir).args([
+        "-j",
+        &num_cpus::get().to_string(),
+        "V=1",
+        // "-I",
+        // make_out_dir.join("include").to_str().unwrap(),
+    ]);
+
     let output = command.output().unwrap();
     show_output(&output);
 }
 
 pub fn exc_make_install(pkg_name: &str) {
+    // let make_out_dir = get_make_out_dir();
     let cmake_out_dir = get_cmake_out_dir(pkg_name);
     let output = Command::new("make")
         .current_dir(&cmake_out_dir)
         .args([
             "V=1",
+            // "-I",
+            // make_out_dir.join("include").to_str().unwrap(),
             "install",
         ])
         .output()
@@ -76,22 +76,17 @@ pub fn exc_make_install(pkg_name: &str) {
     show_output(&output);
 }
 
-pub fn exc_bindgen<I>(make_out_dirs: I)
-where
-    I: IntoIterator,
-    I::Item: AsRef<str>,
-{
-    let mut builder = bindgen::Builder::default()
+pub fn exc_bindgen() {
+    let make_out_dir = get_make_out_dir();
+    let builder = bindgen::Builder::default()
         .header("wrapper.h")
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: false,
-        });
-    for make_out_dir in make_out_dirs {
-        builder = builder.clang_args([format!(
+        })
+        .clang_args([format!(
             "-I{}",
-            format!("{}/include", make_out_dir.as_ref()),
+            make_out_dir.join("include").to_str().unwrap(),
         )]);
-    }
     let bindings = builder
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()
@@ -109,15 +104,28 @@ fn show_output(output: &process::Output) {
     }
 }
 
+fn ensure_dir_exists(path: PathBuf) -> PathBuf {
+    if !path.exists() {
+        std::fs::create_dir_all(&path).unwrap();
+    }
+    path
+}
 fn get_pkg_dir(pkg_name: &str) -> PathBuf {
-    PathBuf::from("../../crt/").join(pkg_name)
+    ensure_dir_exists(
+        PathBuf::from(env::current_dir().unwrap())
+            .join("../../crt/")
+            .join(pkg_name),
+    )
 }
 fn get_out_dir() -> PathBuf {
-    PathBuf::from(env::var("OUT_DIR").unwrap())
+    ensure_dir_exists(PathBuf::from(env::var("OUT_DIR").unwrap()))
 }
 fn get_cmake_out_dir(pkg_name: &str) -> PathBuf {
-    get_out_dir().join(pkg_name)
+    ensure_dir_exists(get_out_dir().join(pkg_name))
 }
-fn get_make_out_dir(pkg_name: &str) -> PathBuf {
-    get_cmake_out_dir(pkg_name).join("build")
+fn get_cmake_module_path() -> PathBuf {
+    ensure_dir_exists(get_out_dir().join("build/lib/cmake"))
+}
+pub fn get_make_out_dir() -> PathBuf {
+    ensure_dir_exists(get_out_dir().join("build"))
 }

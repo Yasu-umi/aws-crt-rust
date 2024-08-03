@@ -12,6 +12,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aws-c-cal-sys"
+version = "0.1.0"
+dependencies = [
+ "build_util",
+]
+
+[[package]]
 name = "aws-c-common-sys"
 version = "0.1.0"
 dependencies = [
@@ -22,6 +29,7 @@ dependencies = [
 name = "aws-crt-rust"
 version = "0.1.0"
 dependencies = [
+ "aws-c-cal-sys",
  "aws-c-common-sys",
 ]
 

@@ -6,8 +6,10 @@ edition = "2021"
 [workspace]
 members = [
     "crates/aws-c-common-sys",
+    "crates/aws-c-cal-sys",
     "crates/build_util",
 ]
 
 [dependencies]
 aws-c-common-sys = { path = "crates/aws-c-common-sys" }
+aws-c-cal-sys = { path = "crates/aws-c-cal-sys" }
